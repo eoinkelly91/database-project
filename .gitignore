@@ -1,0 +1,12 @@
+# Operating System artifacts
+.DS_Store
+Thumbs.db
+
+# Editor configs
+.vscode/
+.idea/
+
+# Database dumps / local backups / secrets
+*.dump
+*.sqlite
+*.env

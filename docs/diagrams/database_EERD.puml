@@ -1,0 +1,186 @@
+@startuml
+!theme plain
+skinparam linetype ortho
+hide circle
+hide empty members
+
+' ==========================================
+' CORE STORE & INFRASTRUCTURE
+' ==========================================
+entity "FURNITURE_WORLD" as store {
+  * store_id : INT <<PK>>
+  --
+  * store_name : VARCHAR(100)
+}
+
+entity "DEPARTMENT" as dept {
+  * department_id : INT <<PK>>
+  --
+  * store_id : INT <<FK>>
+  * department_name : VARCHAR(50)
+}
+
+entity "WAREHOUSE" as warehouse {
+  * warehouse_id : INT <<PK>>
+  --
+  * store_id : INT <<FK>>
+  location : VARCHAR(100)
+}
+
+' ==========================================
+' EMPLOYEES & SUBTYPES
+' ==========================================
+entity "EMPLOYEE" as emp {
+  * employee_id : INT <<PK>>
+  --
+  * first_name : VARCHAR(50)
+  * last_name : VARCHAR(50)
+  * salary : DECIMAL(10,2)
+  * role : VARCHAR(30)
+}
+
+entity "MAINTENANCE" as maint {
+  * employee_id : INT <<PK, FK>>
+}
+
+entity "DELIVERY_DRIVER" as driver {
+  * employee_id : INT <<PK, FK>>
+}
+
+entity "MANAGER" as manager {
+  * employee_id : INT <<PK, FK>>
+}
+
+entity "CLERK" as clerk {
+  * employee_id : INT <<PK, FK>>
+  --
+  * clerk_type : VARCHAR(20) <<'STORE', 'BLINDS'>>
+}
+
+entity "STORE_CLERK" as s_clerk {
+  * employee_id : INT <<PK, FK>>
+}
+
+entity "BLINDS_CLERK" as b_clerk {
+  * employee_id : INT <<PK, FK>>
+}
+
+' ==========================================
+' STOCK HIERARCHY
+' ==========================================
+entity "STOCK" as stock {
+  * stock_id : INT <<PK>>
+  --
+  * department_id : INT <<FK>>
+  * stock_name : VARCHAR(100)
+  description : TEXT
+  size : VARCHAR(50)
+  colour : VARCHAR(30)
+  brand : VARCHAR(50)
+  price : DECIMAL(10,2)
+  discount : DECIMAL(5,2)
+  stock_quantity : INT
+  warehouse_location : VARCHAR(50)
+}
+
+entity "FURNITURE" as furniture {
+  * stock_id : INT <<PK, FK>>
+  --
+  * furniture_type : CHAR(1) <<'B', 'L', 'K'>>
+}
+
+entity "BEDROOM" as bedroom {
+  * stock_id : INT <<PK, FK>>
+}
+
+entity "LIVING_ROOM" as living_room {
+  * stock_id : INT <<PK, FK>>
+}
+
+entity "KITCHEN" as kitchen {
+  * stock_id : INT <<PK, FK>>
+}
+
+entity "COUNTERTOP" as countertop {
+  * stock_id : INT <<PK, FK>>
+  --
+  * material : VARCHAR(50)
+}
+
+entity "FLOORING" as flooring {
+  * stock_id : INT <<PK, FK>>
+  --
+  * floor_type : VARCHAR(50)
+  * material : VARCHAR(50)
+}
+
+entity "BATHROOM" as bathroom {
+  * stock_id : INT <<PK, FK>>
+}
+
+entity "BATH" as bath {
+  * stock_id : INT <<PK, FK>>
+  --
+  tap : VARCHAR(50)
+}
+
+entity "BLINDS" as blinds {
+  * stock_id : INT <<PK, FK>>
+  --
+  * blind_type : VARCHAR(30) <<'Venetian', 'Wood', 'Roller'>>
+}
+
+' ==========================================
+' EXTERNAL ACTORS & INTERACTIONS
+' ==========================================
+entity "CUSTOMER" as customer {
+  * customer_id : INT <<PK>>
+  --
+  name : VARCHAR(100)
+  contact_details : VARCHAR(100)
+}
+
+entity "BLIND_MANUFACTURER" as manufacturer {
+  * manufacturer_id : INT <<PK>>
+  --
+  name : VARCHAR(100)
+}
+
+' ==========================================
+' RELATIONSHIPS & CARDINALITIES
+' ==========================================
+
+' Store structure
+store ||--|{ dept : "has"
+store ||--|| warehouse : "has"
+warehouse ||--o{ maint : "maintained by"
+dept ||--o{ stock : "showcases"
+
+' Employee hierarchy
+emp <|-- maint
+emp <|-- driver
+emp <|-- manager
+emp <|-- clerk
+clerk <|-- s_clerk
+clerk <|-- b_clerk
+
+' Stock hierarchy
+stock <|-- furniture
+stock <|-- flooring
+stock <|-- bathroom
+stock <|-- blinds
+
+furniture <|-- bedroom
+furniture <|-- living_room
+furniture <|-- kitchen
+kitchen ||--o| countertop
+bathroom ||--o| bath
+
+' Customer & Blinds operational workflow
+customer ||--o{ blinds : "orders blind via"
+customer ||--o{ driver : "delivers to"
+b_clerk ||--o{ blinds : "processes order"
+manufacturer ||--o{ blinds : "produces"
+b_clerk ||--o{ manufacturer : "places specs with"
+
+@enduml
