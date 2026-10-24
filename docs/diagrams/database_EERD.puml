@@ -152,7 +152,8 @@ entity "BLIND_MANUFACTURER" as manufacturer {
 
 ' Store structure
 store ||--|{ dept : "has"
-store ||--|| warehouse : "has"
+' Furniture world can have one or many warehouses
+store ||--|{ warehouse : "has"
 warehouse ||--o{ maint : "maintained by"
 dept ||--o{ stock : "showcases"
 
@@ -177,10 +178,15 @@ kitchen ||--o| countertop
 bathroom ||--o| bath
 
 ' Customer & Blinds operational workflow
-customer ||--o{ blinds : "orders blind via"
-customer ||--o{ driver : "delivers to"
-b_clerk ||--o{ blinds : "processes order"
 manufacturer ||--o{ blinds : "produces"
-b_clerk ||--o{ manufacturer : "places specs with"
+
+' 1. Blind clerk places specs with only one blind manufacturer
+b_clerk }|--|| manufacturer : "places specs with"
+
+' 2. One or many delivery drivers deliver to one or many customers
+driver }|--|{ customer : "delivers to"
+
+' 3. One or many customers order blinds from one or many blind clerks
+customer }|--|{ b_clerk : "orders blind from"
 
 @enduml
