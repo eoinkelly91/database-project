@@ -5,7 +5,7 @@ hide circle
 hide empty members
 
 ' ==========================================
-' CORE STORE & INFRASTRUCTURE
+' STORE & CORE INFRASTRUCTURE
 ' ==========================================
 entity "FURNITURE_WORLD" as store {
   * store_id : INT <<PK>>
@@ -28,7 +28,7 @@ entity "WAREHOUSE" as warehouse {
 }
 
 ' ==========================================
-' EMPLOYEES & SUBTYPES
+' EMPLOYEE HIERARCHY
 ' ==========================================
 entity "EMPLOYEE" as emp {
   * employee_id : INT <<PK>>
@@ -43,10 +43,6 @@ entity "MAINTENANCE" as maint {
   * employee_id : INT <<PK, FK>>
 }
 
-entity "DELIVERY_DRIVER" as driver {
-  * employee_id : INT <<PK, FK>>
-}
-
 entity "MANAGER" as manager {
   * employee_id : INT <<PK, FK>>
 }
@@ -57,11 +53,15 @@ entity "CLERK" as clerk {
   * clerk_type : VARCHAR(20) <<'STORE', 'BLINDS'>>
 }
 
-entity "STORE_CLERK" as s_clerk {
+entity "DELIVERY_DRIVER" as driver {
   * employee_id : INT <<PK, FK>>
 }
 
 entity "BLINDS_CLERK" as b_clerk {
+  * employee_id : INT <<PK, FK>>
+}
+
+entity "STORE_CLERK" as s_clerk {
   * employee_id : INT <<PK, FK>>
 }
 
@@ -80,7 +80,8 @@ entity "STOCK" as stock {
   price : DECIMAL(10,2)
   discount : DECIMAL(5,2)
   stock_quantity : INT
-  warehouse_location : VARCHAR(50)
+  location : VARCHAR(50)
+  warehouse_details : VARCHAR(100)
 }
 
 entity "FURNITURE" as furniture {
@@ -111,7 +112,6 @@ entity "FLOORING" as flooring {
   * stock_id : INT <<PK, FK>>
   --
   * floor_type : VARCHAR(50)
-  * material : VARCHAR(50)
 }
 
 entity "BATHROOM" as bathroom {
@@ -127,23 +127,18 @@ entity "BATH" as bath {
 entity "BLINDS" as blinds {
   * stock_id : INT <<PK, FK>>
   --
-  * blind_type : VARCHAR(30) <<'Venetian', 'Wood', 'Roller'>>
+  * blind_type : VARCHAR(30)
 }
 
 ' ==========================================
-' EXTERNAL ACTORS & INTERACTIONS
+' EXTERNAL ACTORS
 ' ==========================================
 entity "CUSTOMER" as customer {
   * customer_id : INT <<PK>>
-  --
-  name : VARCHAR(100)
-  contact_details : VARCHAR(100)
 }
 
 entity "BLIND_MANUFACTURER" as manufacturer {
   * manufacturer_id : INT <<PK>>
-  --
-  name : VARCHAR(100)
 }
 
 ' ==========================================
@@ -152,41 +147,37 @@ entity "BLIND_MANUFACTURER" as manufacturer {
 
 ' Store structure
 store ||--|{ dept : "has"
-' Furniture world can have one or many warehouses
 store ||--|{ warehouse : "has"
-warehouse ||--o{ maint : "maintained by"
 dept ||--o{ stock : "showcases"
+warehouse ||--o{ maint : "maintains"
 
-' Employee hierarchy
+' Employee inheritance
 emp <|-- maint
-emp <|-- driver
 emp <|-- manager
 emp <|-- clerk
-clerk <|-- s_clerk
-clerk <|-- b_clerk
+emp <|-- driver
 
-' Stock hierarchy
+' Clerk inheritance
+clerk <|-- b_clerk
+clerk <|-- s_clerk
+
+' Stock inheritance
 stock <|-- furniture
 stock <|-- flooring
 stock <|-- bathroom
 stock <|-- blinds
 
+' Furniture sub-branches
 furniture <|-- bedroom
 furniture <|-- living_room
 furniture <|-- kitchen
 kitchen ||--o| countertop
 bathroom ||--o| bath
 
-' Customer & Blinds operational workflow
+' Operational / Inter-entity links from diagram
+b_clerk }|--|| manufacturer : "places spec"
 manufacturer ||--o{ blinds : "produces"
-
-' 1. Blind clerk places specs with only one blind manufacturer
-b_clerk }|--|| manufacturer : "places specs with"
-
-' 2. One or many delivery drivers deliver to one or many customers
 driver }|--|{ customer : "delivers to"
-
-' 3. One or many customers order blinds from one or many blind clerks
-customer }|--|{ b_clerk : "orders blind from"
+customer }|--|{ clerk : "orders stock"
 
 @enduml

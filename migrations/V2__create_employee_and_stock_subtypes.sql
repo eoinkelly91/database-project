@@ -28,11 +28,8 @@ CREATE TABLE maintenance (
 CREATE TABLE clerk (
     employee_id INT PRIMARY KEY,
     clerk_type VARCHAR(20) NOT NULL CHECK (clerk_type IN ('STORE', 'BLINDS')),
-    manufacturer_id INT, -- Set for blinds clerks placing specs with one manufacturer
     CONSTRAINT fk_clerk_employee 
-        FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
-    CONSTRAINT fk_clerk_manufacturer 
-        FOREIGN KEY (manufacturer_id) REFERENCES blind_manufacturer(manufacturer_id)
+        FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
 );
 
 CREATE TABLE store_clerk (
@@ -41,10 +38,14 @@ CREATE TABLE store_clerk (
         FOREIGN KEY (employee_id) REFERENCES clerk(employee_id) ON DELETE CASCADE
 );
 
+-- Blinds clerk places specs with blind manufacturer
 CREATE TABLE blinds_clerk (
     employee_id INT PRIMARY KEY,
+    manufacturer_id INT NOT NULL,
     CONSTRAINT fk_blinds_clerk 
-        FOREIGN KEY (employee_id) REFERENCES clerk(employee_id) ON DELETE CASCADE
+        FOREIGN KEY (employee_id) REFERENCES clerk(employee_id) ON DELETE CASCADE,
+    CONSTRAINT fk_blinds_clerk_manufacturer 
+        FOREIGN KEY (manufacturer_id) REFERENCES blind_manufacturer(manufacturer_id)
 );
 
 -- ==========================================================
@@ -105,7 +106,7 @@ CREATE TABLE bath (
 
 CREATE TABLE blinds (
     stock_id INT PRIMARY KEY,
-    blind_type VARCHAR(30) NOT NULL CHECK (blind_type IN ('Venetian', 'Wood', 'Roller')),
+    blind_type VARCHAR(30) NOT NULL,
     manufacturer_id INT NOT NULL,
     CONSTRAINT fk_blinds_stock 
         FOREIGN KEY (stock_id) REFERENCES stock(stock_id) ON DELETE CASCADE,

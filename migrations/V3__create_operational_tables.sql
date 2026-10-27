@@ -1,17 +1,17 @@
--- V3: Many-to-Many Relationship Tables
+-- V3: Operational Tables for Many-to-Many Relationships
 
--- 1. Customer Orders Blind from Blinds Clerk (M:N)
-CREATE TABLE customer_blind_orders (
+-- 1. Orders Stock: Customer orders Stock from any Clerk (Store or Blinds)
+CREATE TABLE customer_stock_orders (
     order_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     customer_id INT NOT NULL,
     clerk_id INT NOT NULL,
-    blind_id INT NOT NULL,
-    CONSTRAINT fk_cbo_customer 
+    stock_id INT NOT NULL,
+    CONSTRAINT fk_cso_customer 
         FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE,
-    CONSTRAINT fk_cbo_clerk 
-        FOREIGN KEY (clerk_id) REFERENCES blinds_clerk(employee_id) ON DELETE CASCADE,
-    CONSTRAINT fk_cbo_blind 
-        FOREIGN KEY (blind_id) REFERENCES blinds(stock_id) ON DELETE CASCADE
+    CONSTRAINT fk_cso_clerk 
+        FOREIGN KEY (clerk_id) REFERENCES clerk(employee_id) ON DELETE CASCADE,
+    CONSTRAINT fk_cso_stock 
+        FOREIGN KEY (stock_id) REFERENCES stock(stock_id) ON DELETE CASCADE
 );
 
 -- 2. Delivery Driver Delivers to Customer (M:N)

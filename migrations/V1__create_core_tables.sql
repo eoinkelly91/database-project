@@ -1,12 +1,12 @@
 -- V1: Core Infrastructure and Independent Base Tables
 
--- 1. Furniture World Store
+-- 1. Store Entity
 CREATE TABLE furniture_world (
     store_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     store_name VARCHAR(100) NOT NULL
 );
 
--- 2. Warehouse (One store can have one or many warehouses)
+-- 2. Warehouse
 CREATE TABLE warehouse (
     warehouse_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     store_id INT NOT NULL,
@@ -33,17 +33,14 @@ CREATE TABLE employee (
     role VARCHAR(30) NOT NULL CHECK (role IN ('MANAGER', 'CLERK', 'DELIVERY DRIVER', 'MAINTENANCE'))
 );
 
--- 5. Blind Manufacturer
+-- 5. Blind Manufacturer (Only manufacturer_id shown on diagram)
 CREATE TABLE blind_manufacturer (
-    manufacturer_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+    manufacturer_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY
 );
 
--- 6. Customer
+-- 6. Customer (Only customer_id shown on diagram)
 CREATE TABLE customer (
-    customer_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    contact_details VARCHAR(100) NOT NULL
+    customer_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY
 );
 
 -- 7. Stock Supertype
