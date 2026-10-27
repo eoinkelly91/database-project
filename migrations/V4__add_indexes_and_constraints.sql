@@ -1,15 +1,13 @@
--- V4: Performance Optimization and Search Indexes
+-- V4: Foreign Key and Search Indexes
 
--- Foreign key indexes
+CREATE INDEX idx_warehouse_store_id ON warehouse(store_id);
+CREATE INDEX idx_department_store_id ON department(store_id);
 CREATE INDEX idx_stock_department_id ON stock(department_id);
-CREATE INDEX idx_stock_stock_type ON stock(stock_type);
-CREATE INDEX idx_blind_orders_customer_id ON blind_orders(customer_id);
-CREATE INDEX idx_blind_orders_status ON blind_orders(order_status);
-CREATE INDEX idx_deliveries_customer_id ON deliveries(customer_id);
-CREATE INDEX idx_deliveries_driver_id ON deliveries(driver_id);
-CREATE INDEX idx_deliveries_status ON deliveries(delivery_status);
+CREATE INDEX idx_maintenance_warehouse_id ON maintenance(warehouse_id);
+CREATE INDEX idx_clerk_manufacturer_id ON clerk(manufacturer_id);
+CREATE INDEX idx_blinds_manufacturer_id ON blinds(manufacturer_id);
 
--- Search indexes for inventory queries
-CREATE INDEX idx_stock_name ON stock(stock_name);
-CREATE INDEX idx_stock_brand ON stock(brand);
-CREATE INDEX idx_customers_phone ON customers(phone_number);
+CREATE INDEX idx_cbo_customer_id ON customer_blind_orders(customer_id);
+CREATE INDEX idx_cbo_clerk_id ON customer_blind_orders(clerk_id);
+CREATE INDEX idx_cd_driver_id ON customer_deliveries(driver_id);
+CREATE INDEX idx_cd_customer_id ON customer_deliveries(customer_id);
