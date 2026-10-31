@@ -1,4 +1,4 @@
--- V2: Subtype Hierarchies for Employees and Stock
+-- V2: Table-Per-Type (TPT) Subtypes for Employees and Stock
 
 -- ==========================================================
 -- Employee Subtypes
@@ -6,8 +6,11 @@
 
 CREATE TABLE manager (
     employee_id INT PRIMARY KEY,
+    store_id INT NOT NULL,
     CONSTRAINT fk_manager_employee 
-        FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
+        FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
+    CONSTRAINT fk_manager_store 
+        FOREIGN KEY (store_id) REFERENCES furniture_world(store_id)
 );
 
 CREATE TABLE delivery_driver (
@@ -19,9 +22,9 @@ CREATE TABLE delivery_driver (
 CREATE TABLE maintenance (
     employee_id INT PRIMARY KEY,
     warehouse_id INT NOT NULL,
-    CONSTRAINT fk_maintenance_employee 
+    CONSTRAINT fk_maint_employee 
         FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
-    CONSTRAINT fk_maintenance_warehouse 
+    CONSTRAINT fk_maint_warehouse 
         FOREIGN KEY (warehouse_id) REFERENCES warehouse(warehouse_id)
 );
 
@@ -38,14 +41,10 @@ CREATE TABLE store_clerk (
         FOREIGN KEY (employee_id) REFERENCES clerk(employee_id) ON DELETE CASCADE
 );
 
--- Blinds clerk places specs with blind manufacturer
 CREATE TABLE blinds_clerk (
     employee_id INT PRIMARY KEY,
-    manufacturer_id INT NOT NULL,
     CONSTRAINT fk_blinds_clerk 
-        FOREIGN KEY (employee_id) REFERENCES clerk(employee_id) ON DELETE CASCADE,
-    CONSTRAINT fk_blinds_clerk_manufacturer 
-        FOREIGN KEY (manufacturer_id) REFERENCES blind_manufacturer(manufacturer_id)
+        FOREIGN KEY (employee_id) REFERENCES clerk(employee_id) ON DELETE CASCADE
 );
 
 -- ==========================================================
@@ -77,16 +76,8 @@ CREATE TABLE kitchen (
         FOREIGN KEY (stock_id) REFERENCES furniture(stock_id) ON DELETE CASCADE
 );
 
-CREATE TABLE countertop (
-    stock_id INT PRIMARY KEY,
-    material VARCHAR(50) NOT NULL,
-    CONSTRAINT fk_countertop_kitchen 
-        FOREIGN KEY (stock_id) REFERENCES kitchen(stock_id) ON DELETE CASCADE
-);
-
 CREATE TABLE flooring (
     stock_id INT PRIMARY KEY,
-    floor_type VARCHAR(50) NOT NULL,
     CONSTRAINT fk_flooring_stock 
         FOREIGN KEY (stock_id) REFERENCES stock(stock_id) ON DELETE CASCADE
 );
@@ -97,16 +88,10 @@ CREATE TABLE bathroom (
         FOREIGN KEY (stock_id) REFERENCES stock(stock_id) ON DELETE CASCADE
 );
 
-CREATE TABLE bath (
-    stock_id INT PRIMARY KEY,
-    tap VARCHAR(50),
-    CONSTRAINT fk_bath_bathroom 
-        FOREIGN KEY (stock_id) REFERENCES bathroom(stock_id) ON DELETE CASCADE
-);
-
 CREATE TABLE blinds (
     stock_id INT PRIMARY KEY,
     blind_type VARCHAR(30) NOT NULL,
+    specification TEXT,
     manufacturer_id INT NOT NULL,
     CONSTRAINT fk_blinds_stock 
         FOREIGN KEY (stock_id) REFERENCES stock(stock_id) ON DELETE CASCADE,

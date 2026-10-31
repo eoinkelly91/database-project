@@ -5,7 +5,7 @@ hide circle
 hide empty members
 
 ' ==========================================
-' STORE & CORE INFRASTRUCTURE
+' STORE INFRASTRUCTURE
 ' ==========================================
 entity "FURNITURE_WORLD" as store {
   * store_id : INT <<PK>>
@@ -24,7 +24,6 @@ entity "WAREHOUSE" as warehouse {
   * warehouse_id : INT <<PK>>
   --
   * store_id : INT <<FK>>
-  location : VARCHAR(100)
 }
 
 ' ==========================================
@@ -45,15 +44,17 @@ entity "MAINTENANCE" as maint {
 
 entity "MANAGER" as manager {
   * employee_id : INT <<PK, FK>>
+  --
+  * store_id : INT <<FK>>
 }
 
 entity "CLERK" as clerk {
   * employee_id : INT <<PK, FK>>
   --
-  * clerk_type : VARCHAR(20) <<'STORE', 'BLINDS'>>
+  * clerk_type : VARCHAR(20)
 }
 
-entity "DELIVERY_DRIVER" as driver {
+entity "STORE_CLERK" as s_clerk {
   * employee_id : INT <<PK, FK>>
 }
 
@@ -61,7 +62,7 @@ entity "BLINDS_CLERK" as b_clerk {
   * employee_id : INT <<PK, FK>>
 }
 
-entity "STORE_CLERK" as s_clerk {
+entity "DELIVERY_DRIVER" as driver {
   * employee_id : INT <<PK, FK>>
 }
 
@@ -72,22 +73,21 @@ entity "STOCK" as stock {
   * stock_id : INT <<PK>>
   --
   * department_id : INT <<FK>>
+  * warehouse_id : INT <<FK>>
   * stock_name : VARCHAR(100)
-  description : TEXT
   size : VARCHAR(50)
   colour : VARCHAR(30)
   brand : VARCHAR(50)
   price : DECIMAL(10,2)
   discount : DECIMAL(5,2)
-  stock_quantity : INT
-  location : VARCHAR(50)
-  warehouse_details : VARCHAR(100)
+  quantity : INT
+  warehouse_location : VARCHAR(50)
 }
 
 entity "FURNITURE" as furniture {
   * stock_id : INT <<PK, FK>>
   --
-  * furniture_type : CHAR(1) <<'B', 'L', 'K'>>
+  * furniture_type : CHAR(1)
 }
 
 entity "BEDROOM" as bedroom {
@@ -102,36 +102,23 @@ entity "KITCHEN" as kitchen {
   * stock_id : INT <<PK, FK>>
 }
 
-entity "COUNTERTOP" as countertop {
-  * stock_id : INT <<PK, FK>>
-  --
-  * material : VARCHAR(50)
-}
-
 entity "FLOORING" as flooring {
   * stock_id : INT <<PK, FK>>
-  --
-  * floor_type : VARCHAR(50)
 }
 
 entity "BATHROOM" as bathroom {
   * stock_id : INT <<PK, FK>>
 }
 
-entity "BATH" as bath {
-  * stock_id : INT <<PK, FK>>
-  --
-  tap : VARCHAR(50)
-}
-
 entity "BLINDS" as blinds {
   * stock_id : INT <<PK, FK>>
   --
   * blind_type : VARCHAR(30)
+  specification : TEXT
 }
 
 ' ==========================================
-' EXTERNAL ACTORS
+' EXTERNAL ACTORS & ASSOCIATIVE ENTITIES
 ' ==========================================
 entity "CUSTOMER" as customer {
   * customer_id : INT <<PK>>
@@ -141,43 +128,63 @@ entity "BLIND_MANUFACTURER" as manufacturer {
   * manufacturer_id : INT <<PK>>
 }
 
+entity "ORDER" as ord {
+  * order_id : INT <<PK>>
+  --
+  * stock_id : INT <<FK>>
+  * employee_id : INT <<FK>>
+  * customer_id : INT <<FK>>
+}
+
+entity "SPECIFICATION" as spec {
+  * spec_id : INT <<PK>>
+  --
+  * employee_id : INT <<FK>>
+  * manufacturer_id : INT <<FK>>
+}
+
 ' ==========================================
 ' RELATIONSHIPS & CARDINALITIES
 ' ==========================================
 
-' Store structure
-store ||--|{ dept : "has"
-store ||--|{ warehouse : "has"
-dept ||--o{ stock : "showcases"
-warehouse ||--o{ maint : "maintains"
+store ||--|{ dept : "HAS"
+store ||--|{ warehouse : "HAS"
+manager }|--|| store : "OVERSEES"
 
-' Employee inheritance
+dept ||--|{ stock : "SHOWCASES"
+warehouse ||--|{ stock : "STORED IN"
+warehouse ||--o{ maint : "MAINTAINS"
+
+' Employee Disjoint Subtypes (d)
 emp <|-- maint
 emp <|-- manager
 emp <|-- clerk
 emp <|-- driver
 
-' Clerk inheritance
+' Clerk Disjoint Subtypes (d)
 clerk <|-- b_clerk
 clerk <|-- s_clerk
 
-' Stock inheritance
+' Stock Disjoint Subtypes (d)
 stock <|-- furniture
 stock <|-- flooring
 stock <|-- bathroom
 stock <|-- blinds
 
-' Furniture sub-branches
+' Furniture Disjoint Subtypes (d)
 furniture <|-- bedroom
 furniture <|-- living_room
 furniture <|-- kitchen
-kitchen ||--o| countertop
-bathroom ||--o| bath
 
-' Operational / Inter-entity links from diagram
-b_clerk }|--|| manufacturer : "places spec"
-manufacturer ||--o{ blinds : "produces"
-driver }|--|{ customer : "delivers to"
-customer }|--|{ clerk : "orders stock"
+' Associative Entities & Operations
+ord }|--|| stock
+ord }|--|| clerk
+ord }|--|| customer
+
+spec }|--|| b_clerk
+spec }|--|| manufacturer
+
+driver }|--|{ customer : "DELIVERS ORDER"
+manufacturer ||--o{ blinds : "PRODUCES"
 
 @enduml

@@ -1,26 +1,37 @@
--- V3: Operational Tables for Many-to-Many Relationships
+-- V3: Associative Entities and Many-to-Many Relationships
 
--- 1. Orders Stock: Customer orders Stock from any Clerk (Store or Blinds)
-CREATE TABLE customer_stock_orders (
+-- 1. ORDER (Associative entity bridging Stock, Clerk, Customer)
+CREATE TABLE customer_order (
     order_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    customer_id INT NOT NULL,
-    clerk_id INT NOT NULL,
     stock_id INT NOT NULL,
-    CONSTRAINT fk_cso_customer 
-        FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE,
-    CONSTRAINT fk_cso_clerk 
-        FOREIGN KEY (clerk_id) REFERENCES clerk(employee_id) ON DELETE CASCADE,
-    CONSTRAINT fk_cso_stock 
-        FOREIGN KEY (stock_id) REFERENCES stock(stock_id) ON DELETE CASCADE
+    employee_id INT NOT NULL,
+    customer_id INT NOT NULL,
+    CONSTRAINT fk_order_stock 
+        FOREIGN KEY (stock_id) REFERENCES stock(stock_id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_clerk 
+        FOREIGN KEY (employee_id) REFERENCES clerk(employee_id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_customer 
+        FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
 
--- 2. Delivery Driver Delivers to Customer (M:N)
-CREATE TABLE customer_deliveries (
-    delivery_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+-- 2. SPECIFICATION (Associative entity bridging Blinds Clerk and Blind Manufacturer)
+CREATE TABLE specification (
+    spec_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    employee_id INT NOT NULL,
+    manufacturer_id INT NOT NULL,
+    CONSTRAINT fk_spec_blinds_clerk 
+        FOREIGN KEY (employee_id) REFERENCES blinds_clerk(employee_id) ON DELETE CASCADE,
+    CONSTRAINT fk_spec_manufacturer 
+        FOREIGN KEY (manufacturer_id) REFERENCES blind_manufacturer(manufacturer_id) ON DELETE CASCADE
+);
+
+-- 3. DELIVERS ORDER (Delivery Driver to Customer)
+CREATE TABLE delivery_driver_delivers_order (
     driver_id INT NOT NULL,
     customer_id INT NOT NULL,
-    CONSTRAINT fk_cd_driver 
+    PRIMARY KEY (driver_id, customer_id),
+    CONSTRAINT fk_ddo_driver 
         FOREIGN KEY (driver_id) REFERENCES delivery_driver(employee_id) ON DELETE CASCADE,
-    CONSTRAINT fk_cd_customer 
+    CONSTRAINT fk_ddo_customer 
         FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
